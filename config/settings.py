@@ -1,3 +1,3 @@
 settings = {
-    "token": "your token"
+    "token": "token"
 }
