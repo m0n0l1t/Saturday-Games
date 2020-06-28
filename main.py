@@ -1,12 +1,14 @@
+import asyncio
+
 import discord
 import random
 from discord.ext import commands
 from config.settings import *
 from models import *
-import os
+from collections import deque
 
 bot = commands.Bot(command_prefix='')
-black_list = [0, 1, 2]
+black_list = deque()
 operation = 0
 
 
@@ -32,6 +34,11 @@ def search_last():
 
 
 def clear_base():
+    while len(black_list) != 0:
+        black_list.popleft()
+
+    black_list.append(0)
+    black_list.append(0)
     used = session.query(City).filter_by(is_used=1).all()
     for i in used:
         i.is_used = 0
@@ -39,8 +46,23 @@ def clear_base():
         session.commit()
 
 
+
+
+
+
 @bot.event
 async def on_message(message):
+    def check(user, reaction):
+        return user == message.author and str(reaction.emoji) == '👍'
+
+    async def del_self():
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
+        except asyncio.TimeoutError:
+            await message.channel.purge(limit=1)
+        else:
+            await message.channel.send('👍')
+
     if bot.user.id == message.author.id:
         return
     msg = message.content.lower()
@@ -49,16 +71,20 @@ async def on_message(message):
         last_city = search_last()
         await message.channel.send("Начнем с города **[" + last_city.name.upper() + "]**")
         await message.channel.send("Следующий город на букву [" + last_letter(last_city.name) + "]")
-
-    if message.author.id not in black_list:
-
+        return
+    if msg == '.clear':
+        await message.channel.purge(limit=100)
+    if message.author.id in black_list:
+        await message.channel.purge(limit=1)
+        await message.channel.send(f'Вы уже загадали город {message.author.mention}, дождитесь следующих участников')
+        await del_self()
     else:
-
         our_city = session.query(City).filter_by(name=msg).first()
         last_city = search_last()
         if our_city is None:
+            await message.channel.purge(limit=1)
             await message.channel.send("Такого города не существует")
-
+            await del_self()
         else:
             if last_letter(last_city.name) == our_city.name[0]:
                 if our_city.is_used == 0:
@@ -67,9 +93,13 @@ async def on_message(message):
                     last_city.is_last = 0
                     await message.channel.send("Следующий город на букву [" + last_letter(our_city.name) + "]")
                     session.commit()
+                    black_list.popleft()
+                    black_list.append(message.author.id)
                 else:
                     await message.channel.send("Этот город уже был")
+                    await del_self()
             else:
                 await message.channel.send("Этот город не начинается на букву [" + last_letter(last_city.name) + "]")
+                await del_self()
 
 bot.run(settings["token"])
