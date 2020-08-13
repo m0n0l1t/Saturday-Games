@@ -3,7 +3,6 @@ import asyncio
 import discord
 import random
 from discord.ext import commands
-from config.settings import *
 from models import *
 from collections import deque
 
