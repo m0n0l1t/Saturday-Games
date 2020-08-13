@@ -1,4 +1,6 @@
-#!/home/monol1t/PycharmProjects/inori/venv/bin/python
+#!/bin/sh
+'''exec' "/home/m0n0l1t/PycharmProjects/inori 2/venv/bin/python" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys
