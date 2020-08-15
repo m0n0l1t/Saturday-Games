@@ -30,7 +30,6 @@ async def on_message(message):
         embed.add_field(name='letter', value="оставшиеся буквы", inline=False)
         embed.add_field(name='clear', value="очистка 100 сообщений", inline=False)
 
-
         await message.channel.send(embed=embed)
     elif channel_id not in channel_list:
         if msg == 'start city':
@@ -102,7 +101,7 @@ async def on_message(message):
                         embed = discord.Embed(title=f":red_circle: **{msg.upper()}** Этот город уже был ",
                                               description="Попробуй вспомнить другой",
                                               color=0xd34545)
-                        embed.set_footer(text=str(datetime.today()))
+
                         await message.channel.send(embed=embed)
                         await del_self(message)
                 else:
