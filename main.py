@@ -1,5 +1,5 @@
 from function import *
-from datetime import datetime
+import os
 
 channel_list = []
 
@@ -116,4 +116,6 @@ async def on_message(message):
                     await del_self(message)
 
 
-bot.run('NzI0NjI4Njg4MzQzMTM4MzI0.XvC9Dg.NYddDA5FJF7t3kR0osGyOC-c200')
+token = os.environ.get('BOT_TOKEN')
+bot.run(str(token))
+
