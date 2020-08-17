@@ -178,18 +178,4 @@ def start_game(channel_id):
     lit_count(channel_id, lit.last)
 
 
-async def del_self(message):
-    channel_id = message.channel.id
-    last = search_last(channel_id)
 
-    def check(user, reaction):
-        return user == message.author and str(reaction.emoji) == '👍'
-
-    try:
-        reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
-    except asyncio.TimeoutError:
-        await message.channel.purge(limit=1)
-        await message.channel.send(
-            "Следующий город на букву [" + last_letter(last.name, channel_id) + "]")
-    else:
-        await message.channel.send('👍')

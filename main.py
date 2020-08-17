@@ -19,7 +19,7 @@ async def on_message(message):
         return
     msg = message.content.lower()
 
-    if msg == 'clear':
+    if msg == 'clear' and message.author.top_role.permissions.administrator:
         await message.channel.purge(limit=100)
     elif msg == 'help city':
 
@@ -28,7 +28,7 @@ async def on_message(message):
         embed.add_field(name='start city', value="начать игру на этом канале", inline=False)
         embed.add_field(name='stop city', value="закончить игру на этом канале", inline=False)
         embed.add_field(name='letter', value="оставшиеся буквы", inline=False)
-        embed.add_field(name='clear', value="очистка 100 сообщений", inline=False)
+        embed.add_field(name='clear', value="очистка 100 сообщений(только админ)", inline=False)
 
         await message.channel.send(embed=embed)
     elif channel_id not in channel_list:
@@ -38,7 +38,7 @@ async def on_message(message):
 
             last_city = search_last(channel_id)
             embed = discord.Embed(title=":green_square: Начнем с города **[" + last_city.name.upper() + "]**",
-                                  description=f"Следующий город на букву [{last_letter(last_city.name, channel_id)}]",
+                                  description=f"**Следующий город на букву [{last_letter(last_city.name, channel_id)}]**",
                                   color=0x45d370)
 
             await message.channel.send(embed=embed)
@@ -47,6 +47,8 @@ async def on_message(message):
         else:
             return
     elif channel_id in channel_list:
+        last_city = search_last(channel_id)
+
         used_list = []
         for i in session.query(Used).filter_by(channel_id=channel_id).order_by(Used.id):
             used_list.append(i.used_city)
@@ -82,8 +84,10 @@ async def on_message(message):
                                       description="Попробуй вспомнить другой",
                                       color=0xd34545)
 
-                await message.channel.send(embed=embed)
-                await del_self(message)
+                msg = await message.channel.send(embed=embed, delete_after=10)
+
+
+
             else:
                 if last_letter(last_city.name, channel_id) == our_city.first_literal:
                     if our_city.id not in used_list:
@@ -92,7 +96,7 @@ async def on_message(message):
                         lit_count(channel_id, our_city.id)
                         embed = discord.Embed(
                             title=":green_square: В точку!",
-                            description=f"Следующий город на букву [{last_letter(our_city.name, channel_id)}]",
+                            description=f"**Следующий город на букву [{last_letter(our_city.name, channel_id)}]**",
                             color=0x45d370)
 
                         await message.channel.send(embed=embed)
@@ -102,17 +106,20 @@ async def on_message(message):
                                               description="Попробуй вспомнить другой",
                                               color=0xd34545)
 
-                        await message.channel.send(embed=embed)
-                        await del_self(message)
+                        msg = await message.channel.send(embed=embed, delete_after=10)
+
+
+
                 else:
                     await message.channel.purge(limit=1)
                     s = f"**{our_city.name.upper()} **Этот город не начинается на букву [{last_letter(last_city.name,channel_id)}]"
                     embed = discord.Embed(title=s,
                                           description="Попробуй вспомнить другой",
                                           color=0xd34545)
-                    await message.channel.send(embed=embed)
+                    msg = await message.channel.send(embed=embed, delete_after=10)
 
-                    await del_self(message)
+
+
 
 
 token = os.environ.get('BOT_TOKEN')
