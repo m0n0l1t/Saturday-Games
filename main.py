@@ -19,9 +19,8 @@ async def on_message(message):
         return
     msg = message.content.lower()
 
-    if msg == 'clear' and message.author.top_role.permissions.administrator:
-        await message.channel.purge(limit=100)
-    elif msg == 'help city':
+    
+    if msg == 'help city':
 
         embed = discord.Embed(title="Команды",
                               color=0x45d370)
