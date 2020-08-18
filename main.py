@@ -27,8 +27,6 @@ async def on_message(message):
         embed.add_field(name='start city', value="начать игру на этом канале", inline=False)
         embed.add_field(name='stop city', value="закончить игру на этом канале", inline=False)
         embed.add_field(name='letter', value="оставшиеся буквы", inline=False)
-        embed.add_field(name='clear', value="очистка 100 сообщений(только админ)", inline=False)
-
         await message.channel.send(embed=embed)
     elif channel_id not in channel_list:
         if msg == 'start city':
